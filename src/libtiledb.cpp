@@ -761,12 +761,16 @@ XPtr<tiledb::Query> tiledb_query_set_subarray(XPtr<tiledb::Query> query,
                                               SEXP subarray) {
   try {
     if (TYPEOF(subarray) == INTSXP) {
+      IntegerVector vec(subarray);
+      query->set_subarray<int32_t>(vec.begin(), vec.length()); 
       return query; 
     } else if (TYPEOF(subarray) == REALSXP) {
+      NumericVector vec(subarray);
+      query->set_subarray<double>(vec.begin(), vec.length());
       return query; 
     } else {
       // TODO: better error
-      throw Rcpp::exception("invalid subarray type");
+      throw Rcpp::exception("invalid subarray argument datatype");
     }
   } catch (tiledb::TileDBError& err){
     throw Rcpp::exception(err.what());
@@ -780,11 +784,11 @@ XPtr<tiledb::Query> tiledb_query_set_buffer(XPtr<tiledb::Query> query,
   try {
     if (TYPEOF(buffer) == INTSXP) {
       IntegerVector vec(buffer);
-      query->set_buffer(attr, vec.begin(), vec.length());
+      query->set_buffer<int32_t>(attr, vec.begin(), vec.length());
       return query;
     } else if (TYPEOF(buffer) == REALSXP) {
       NumericVector vec(buffer);
-      query->set_buffer(attr, vec.begin(), vec.length());
+      query->set_buffer<double>(attr, vec.begin(), vec.length());
       return query;
     } else {
       throw Rcpp::exception("invalid attribute buffer type");

@@ -39,11 +39,13 @@ setMethod("[", "Array",
             ctx <- x@ctx
             uri <- x@uri
             if (missing(i) && missing(j)) {
-              result <- array(0, c(100, 100))  
+              result <- array(0L, c(10, 10))  
               qry <- tiledb_query(ctx@ptr, uri, "READ")
-              qry <- tiledb_query_set_layout(qry, "COL_MAJOR")
-              qry <- tiledb_query_set_buffer(qry, "foo", result)
-              tiledb_query_submit(qry)
+              #qry <- tiledb_query_set_layout(qry, "COL_MAJOR")
+              qry <- tiledb_query_set_buffer(qry, "values", result)
+              qry <- tiledb_query_submit(qry)
+              print("READING STATUS:")
+              print(tiledb_query_status(qry))
               return(result);
             } else {
               stop("indexing functionality not implemented") 
@@ -57,10 +59,11 @@ setMethod("[<-", "Array",
             if (missing(i) && missing(j)) {
               qry <- tiledb_query(ctx@ptr, uri, "WRITE") 
               qry <- tiledb_query_set_layout(qry, "COL_MAJOR")
-              qry <- tiledb_query_set_buffer(qry, "foo", value)
-              #qry <- tiledb_query_set_subarray(qry, c(1, 100, 1, 100))
-              tiledb_query_submit(qry)
-              return();
+              qry <- tiledb_query_set_buffer(qry, "values", value)
+              qry <- tiledb_query_submit(qry)
+              print("WRITING STATUS:")
+              print(tiledb_query_status(qry))
+              return(x);
             } else {
               stop("indexing functionality not implemented") 
             }

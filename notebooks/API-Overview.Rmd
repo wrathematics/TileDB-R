@@ -1,0 +1,75 @@
+---
+title: "TileDB-R API"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook that gives a brief overview of the [TileDB-R](https://github.com/TileDB-Inc/TileDB-R) API and some core TileDB concepts.
+
+Basic Structure:
+
+- Rcpp to wrap TileDB's C++ API
+- High level S4 classes wrap C++ passed as externalptrs's
+- Testthat for unit testing
+  
+### Load the TileDB-R package
+
+```{r}
+library(tiledb)
+tiledb::libtiledb_version()
+```
+
+
+### Initialize a Ctx
+
+```{r}
+ctx <- tiledb::Ctx()
+ctx
+```
+
+### Create an Array Domain
+
+```{r}
+d1 <- tiledb::Dim(ctx, "d1", domain=c(1L, 10L), tile=5L, type="INT32")
+d2 <- tiledb::Dim(ctx, "d2", domain=c(1L, 10L), tile=5L, type="INT32")
+dom <- tiledb::Domain(ctx, c(d1, d2))
+dom
+```
+
+### Define an Array Attribute
+
+```{r}
+a1 <- tiledb::Attr(ctx, name ="values", type="INT32")
+a1
+```
+
+```{r}
+sch <- tiledb::ArraySchema(ctx, dom, attrs=list(a1), sparse = FALSE)
+sch
+```
+
+### Create the Array on (local FS) with given URI
+
+```{r}
+if (dir.exists("./demo_array")) unlink("./demo_array", recursive = TRUE)
+
+A <- tiledb::Array(ctx, schema = sch, uri = "demo_array")
+A
+```
+
+#### Save some array data
+```{r}
+A[] <- array(1:100, c(10, 10))
+```
+
+### Load the array object from disk
+
+```{r}
+B <- tiledb::Array.load(ctx, "demo_array")
+B
+```
+
+### Read back the saved data
+
+```{r}
+B[]
+```
