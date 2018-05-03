@@ -3,8 +3,14 @@
 language: R
 sudo: true
 cache: packages
+warnings_are_errors: true
+cran: http://cran.rstudio.com
 
-install:
+r_packages:
+    - testthat
+    - Rcpp
+
+before_install:
     # Install TileDB
     - git clone https://github.com/TileDB-Inc/TileDB /tmp/TileDB
     - pushd /tmp/TileDB
@@ -17,15 +23,6 @@ install:
     - popd
     - popd
 
-    # Install R package deps 
-    - R -e 'install.packages("devtools")'
-    - R -e 'devtools::install_deps(dependencies=T)'
-    - R -e 'install.packages(c("testthat", "roxygen2"))'
-
 script:
-    # Build and Test R package
-    - R CMD INSTALL --no-multiarch --with-keep.source --configure-args='--with-tiledb=/tmp/TileDB/dist' .
-    - R -e 'library(tiledb); library(devtools); devtools::test()'
-    
-    # - R CMD BUILD .
-    # - R CMD check *tar.gz
+    - R CMD BUILD .
+    - R CMD check *tar.gz --install-args=--configure-args="--with-tiledb=/tmp/TileDB/dist"
